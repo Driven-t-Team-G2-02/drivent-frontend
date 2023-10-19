@@ -1,3 +1,7 @@
+import PaymentInfo from "../../../components/Dashboard/PaymentInfo";
+
 export default function Payment() {
-  return 'Pagamento: Em breve!';
+  return (
+    <PaymentInfo/>
+  );
 }
