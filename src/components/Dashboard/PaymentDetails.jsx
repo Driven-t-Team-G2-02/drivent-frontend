@@ -1,0 +1,241 @@
+import { Button, Typography } from "@mui/material";
+import styled from 'styled-components';
+import card from '../../assets/images/card.png';
+import check from '../../assets/images/circle-check-fill.png'
+import { FormWrapper } from "../PersonalInformationForm/FormWrapper";
+import { InputWrapper } from "../PersonalInformationForm/InputWrapper";
+import { useState } from "react";
+//import Input from "../Form/Input";
+export default function PaymentDetails() {
+    const [cardNumber, setCardNumber] = useState('')
+    const [name, setName] = useState('')
+    const [validThru, setValidThru] = useState('')
+    const [cvc, setCVC] = useState('')
+    const [paymentFinished, setPaymentFinished] = useState(false)
+
+    function finishPayment(event) {
+        event.preventDefault();
+        setPaymentFinished(true)
+    }
+    return (
+        <>
+            <StyledTypography variant="h4">Ingresso e pagamento</StyledTypography>
+            <Information>Ingresso escolhido</Information>
+            <Ticket>
+                <h1>
+                    Presencial + Com hotel
+                </h1>
+                <h2>
+                    R$ 600
+                </h2>
+            </Ticket>
+            {paymentFinished ? (
+                <>
+                    <Information>Pagamento</Information>
+                    <PaymentConfirmationContainer>
+                        <img src={check} />
+                        <div>
+                            <h1>Pagamento confirmado!</h1>
+                            <p>Prossiga para escolha de hospedagem e atividades</p>
+                        </div>
+                    </PaymentConfirmationContainer>
+                </>
+            )
+                :
+                (
+                    <>
+                        <Information>Pagamento</Information>
+                        <PaymentContainer>
+                            <img src={card} />
+                            <PaymentForm onSubmit={finishPayment}>
+                                <PaymentInput
+                                    required
+                                    type='number'
+                                    placeholder="Card Number"
+                                    value={cardNumber}
+                                    onChange={e => setCardNumber(e.target.value)}
+                                />
+                                <p>
+                                    E.g.: 49..., 51..., 36..., 37...
+                                </p>
+                                <PaymentInput
+                                    required
+                                    type='text'
+                                    placeholder="Name"
+                                    value={name}
+                                    onChange={e => setName(e.target.value)}
+                                />
+                                <div>
+                                    <PaymentInput
+                                        required
+                                        width='64%'
+                                        type='text'
+                                        placeholder="Valid Thru"
+                                        value={validThru}
+                                        onChange={e => setValidThru(e.target.value)}
+                                    />
+                                    <PaymentInput
+                                        required
+                                        width='32%'
+                                        type='number'
+                                        placeholder="CVC"
+                                        value={cvc}
+                                        onChange={e => setCVC(e.target.value)}
+                                    />
+                                </div>
+                                <button type='submit'>FINALIZAR PAGAMENTO</button>
+                            </PaymentForm>
+                        </PaymentContainer>
+
+                    </>)}
+        </>
+    )
+}
+
+const StyledTypography = styled(Typography)`
+    margin-bottom: 20px!important;
+    font-family: Roboto;
+    font-size: 34px;
+    font-weight: 400;
+    line-height: 40px;
+    letter-spacing: 0em;
+    text-align: left;
+    color: #000000;
+`;
+
+const Information = styled.div`
+    font-family: Roboto;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 23px;
+    letter-spacing: 0em;
+    text-align: left;
+    color: #8E8E8E;
+`;
+
+const Ticket = styled.div`
+    width: 290px;
+    height: 108px;
+    background-color: #FFEED2;
+    border-radius: 20px;
+    margin: 12px 0px 20px 0px;
+    padding: 33px 15px 33px 15px;
+    h1 {
+        font-family: Roboto;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 19px;
+        text-align: center;
+        color: #000000;
+        margin-bottom: 8px;
+    }
+    h2 {
+        font-family: Roboto;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 17px;
+        text-align: center;
+        color: #898989;
+    }
+`
+
+const PaymentContainer = styled.div`
+    width: 700px;
+    height: 225px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    img {
+        height: 90%;
+        margin-right: 20px;
+    }
+`
+
+const PaymentInput = styled.input`
+    font-size: 20px;
+    width: ${(props) => props.width ? props.width : '100%'};
+    border-radius: 5px;
+    outline: none;
+    border: 1px solid #c2c0c0;
+    height: 42px;
+    color: #8E8E8E;
+    padding: 10px;
+    :focus {
+        border: 2px solid #040202;
+        //background-color: blueviolet;
+    }
+`
+const PaymentForm = styled.form`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+    border-radius: 5px;
+    position: relative;
+    p {
+        font-family: Roboto;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 17px;
+        color: #898989;
+        margin-bottom: 5px;
+    }
+    div {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: 50px;
+        justify-content: space-between;
+        align-items: center;
+    }
+    button {
+        width: 182px;
+        height: 37px;
+        border-radius: 4px;
+        font-family: Roboto;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 16px;
+        text-align: center;
+        color: #000000;
+        background-color: #E0E0E0;
+        box-shadow: 0px 2px 10px 0px #00000040;
+        border: none;
+        margin-top: 18px;
+        position: absolute;
+        bottom: -70px;
+        left: -323px;
+    }
+`
+const PaymentConfirmationContainer = styled.div`
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 15px;
+    img {
+        width: 44px;
+    }
+    div {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        margin-left: 10px;
+        h1 {
+            font-family: Roboto;
+            font-weight: 700;
+            font-size: 16px;
+            line-height: 19px;
+            color: #454545
+        }
+        p {
+            font-family: Roboto;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 19px;
+            color: #454545;
+        }
+    }
+`
