@@ -13,12 +13,16 @@ import EventInfoContext from '../../contexts/EventInfoContext';
 import UserContext from '../../contexts/UserContext';
 
 import useSignIn from '../../hooks/api/useSignIn';
+import useGithubGetcode from '../../hooks/api/useGithubGetCode';
+import useGithubSignIn from '../../hooks/api/useGithubSignIn';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const { loadingSignIn, signIn } = useSignIn();
+  const { githubGetCodeLoading, githubGetCode } = useGithubGetcode();
+  const { githubSignInLoading, githubSignIn } = useGithubSignIn();
 
   const { eventInfo } = useContext(EventInfoContext);
   const { setUserData } = useContext(UserContext);
@@ -38,6 +42,17 @@ export default function SignIn() {
     }
   } 
 
+  async function handleGithubSignIn() {
+    try {
+      const response = await githubGetCode();
+      const userData = await githubSignIn(response.code);
+      console.log(response);
+      console.log(userData);
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   return (
     <AuthLayout background={eventInfo.backgroundImageUrl}>
       <Row>
@@ -49,7 +64,8 @@ export default function SignIn() {
         <form onSubmit={submit}>
           <Input label="E-mail" type="text" fullWidth value={email} onChange={e => setEmail(e.target.value)} />
           <Input label="Senha" type="password" fullWidth value={password} onChange={e => setPassword(e.target.value)} />
-          <Button type="submit" color="primary" fullWidth disabled={loadingSignIn}>Entrar</Button>
+          <Button type="submit" color="primary" fullWidth disabled={loadingSignIn || githubGetCodeLoading || githubSignInLoading}>Entrar</Button>
+          <Button type="button" onClick={() => handleGithubSignIn()} color="secondary" fullWidth disabled={loadingSignIn || githubSignInLoading || githubSignInLoading}>Github</Button>
         </form>
       </Row>
       <Row>
