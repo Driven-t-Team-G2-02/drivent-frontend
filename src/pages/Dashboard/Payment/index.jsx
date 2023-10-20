@@ -3,7 +3,7 @@ import PaymentDetails from "../../../components/Dashboard/PaymentDetails";
 
 export default function Payment() {
   return (
-    //<PaymentInfo />
-    <PaymentDetails />
+    <PaymentInfo />
+    //<PaymentDetails />
   );
 }

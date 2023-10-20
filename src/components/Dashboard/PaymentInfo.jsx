@@ -3,13 +3,53 @@ import styled from 'styled-components';
 import ErrorMessage from "./ErrorMessage";
 import useEnrollment from "../../hooks/api/useEnrollment";
 import { useState } from "react";
+import useTicket from "../../hooks/api/useTicket";
+import { toast } from 'react-toastify';
 
 
 export default function Payment() {
   const { enrollment, enrollmentError } = useEnrollment();
 
+  const { createTicket } = useTicket();
+
   const [type, setType] = useState("presencial");
   const [hotel, setHotel] = useState("Sem Hotel");
+  const [disabled, setDisabled] = useState(false);
+
+  async function bookticket() {
+
+   if(type === "presencial" && hotel === "Com Hotel"){
+    try {
+      await createTicket(1);
+      toast('Ingresso reservado com sucesso!');
+      setDisabled(true);
+      //navigate('/sign-in');
+    } catch (error) {
+      toast('Não foi possível reservar o ingresso!');
+      setDisabled(true);
+    }
+   } else if(type === "presencial" && hotel === "Sem Hotel"){
+    try {
+      await createTicket(2);
+      toast('Ingresso reservado com sucesso!');
+      setDisabled(true);
+      //navigate('/sign-in');
+    } catch (error) {
+      toast('Não foi possível reservar o ingresso!');
+    }
+
+   } else if (type === "online"){
+    try {
+      await createTicket(3);
+      toast('Ingresso reservado com sucesso!');
+      setDisabled(true);
+      //navigate('/sign-in');
+    } catch (error) {
+      toast('Não foi possível reservar o ingresso!');
+    }
+
+   }
+  }
 
   return (
     <>
@@ -76,7 +116,7 @@ export default function Payment() {
                 <Information>Fechado! O total ficou em R$ 250. Agora é só confirmar:</Information>
               )}
 
-              <NewButton1>RESERVAR INGRESSO</NewButton1>
+              <NewButton1 onClick={bookticket} disabled={disabled}>RESERVAR INGRESSO</NewButton1>
 
             </ContainerPresencial>
 
@@ -86,7 +126,7 @@ export default function Payment() {
 
               <Information>Fechado! O total ficou em R$ 100. Agora é só confirmar:</Information>
 
-              <NewButton>RESERVAR INGRESSO</NewButton>
+              <NewButton onClick={bookticket} disabled={disabled}>RESERVAR INGRESSO</NewButton>
 
             </ContainerOnline>
 
@@ -161,11 +201,11 @@ color: #898989;
   
 `;
 
-const ContainerPresencial = styled.p`
+const ContainerPresencial = styled.div`
   
 `;
 
-const ContainerOnline = styled.p`
+const ContainerOnline = styled.div`
   
 `;
 
