@@ -1,21 +1,58 @@
-import { Button, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import styled from 'styled-components';
 import card from '../../assets/images/card.png';
 import check from '../../assets/images/circle-check-fill.png'
-import { FormWrapper } from "../PersonalInformationForm/FormWrapper";
-import { InputWrapper } from "../PersonalInformationForm/InputWrapper";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useTicket from "../../hooks/api/useTicket";
+import usePayment from "../../hooks/api/usePayment";
+import { toast } from "react-toastify";
 //import Input from "../Form/Input";
-export default function PaymentDetails() {
+export default function PaymentDetails(props) {
+    const { ticketReserved, setTicketReserved } = props
     const [cardNumber, setCardNumber] = useState('')
     const [name, setName] = useState('')
     const [validThru, setValidThru] = useState('')
     const [cvc, setCVC] = useState('')
     const [paymentFinished, setPaymentFinished] = useState(false)
+    const { getUserTicket } = useTicket()
+    const [ticketTypeName, setTicketTypeName] = useState('')
+    const [ticketPrice, setTicketPrice] = useState('')
+    const [ticketId, setTicketId] = useState('')
 
-    function finishPayment(event) {
+    const { processPayment } = usePayment()
+
+
+    useEffect(async () => {
+        try {
+            const userTicket = await getUserTicket()
+            console.log(userTicket)
+            setTicketTypeName(userTicket.TicketType.name)
+            setTicketPrice(userTicket.TicketType.price)
+            setTicketId(userTicket.id)
+        } catch (err) {
+            console.log(err)
+        }
+    }, [ticketReserved])
+
+    async function finishPayment(event) {
         event.preventDefault();
-        setPaymentFinished(true)
+        try {
+            const info = {
+                ticketId,
+                cardData: {
+                    issuer: 'VISA',
+                    number: cardNumber,
+                    name,
+                    expirationDate: validThru,
+                    cvv: cvc
+                }
+            }
+            await processPayment(info)
+            toast('Pagamento realizado com sucesso!');
+            setPaymentFinished(true);
+        } catch (err) {
+            toast('Não foi possível realizar o pagamento')
+        }
     }
     return (
         <>
@@ -23,10 +60,10 @@ export default function PaymentDetails() {
             <Information>Ingresso escolhido</Information>
             <Ticket>
                 <h1>
-                    Presencial + Com hotel
+                    {ticketTypeName}
                 </h1>
                 <h2>
-                    R$ 600
+                    R$ {ticketPrice}
                 </h2>
             </Ticket>
             {paymentFinished ? (

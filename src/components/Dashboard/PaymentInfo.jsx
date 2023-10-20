@@ -5,9 +5,11 @@ import useEnrollment from "../../hooks/api/useEnrollment";
 import { useState } from "react";
 import useTicket from "../../hooks/api/useTicket";
 import { toast } from 'react-toastify';
+import { getUserTicket } from "../../services/ticketApi";
 
 
-export default function Payment() {
+export default function Payment(props) {
+  const { ticketReserved, setTicketReserved } = props
   const { enrollment, enrollmentError } = useEnrollment();
 
   const { createTicket } = useTicket();
@@ -18,37 +20,40 @@ export default function Payment() {
 
   async function bookticket() {
 
-   if(type === "presencial" && hotel === "Com Hotel"){
-    try {
-      await createTicket(1);
-      toast('Ingresso reservado com sucesso!');
-      setDisabled(true);
-      //navigate('/sign-in');
-    } catch (error) {
-      toast('Não foi possível reservar o ingresso!');
-      setDisabled(true);
-    }
-   } else if(type === "presencial" && hotel === "Sem Hotel"){
-    try {
-      await createTicket(2);
-      toast('Ingresso reservado com sucesso!');
-      setDisabled(true);
-      //navigate('/sign-in');
-    } catch (error) {
-      toast('Não foi possível reservar o ingresso!');
-    }
+    if (type === "presencial" && hotel === "Com Hotel") {
+      try {
+        await createTicket(1);
+        toast('Ingresso reservado com sucesso!');
+        setDisabled(true);
+        setTicketReserved(true)
+        //navigate('/sign-in');
+      } catch (error) {
+        toast('Não foi possível reservar o ingresso!');
+        setDisabled(true);
+      }
+    } else if (type === "presencial" && hotel === "Sem Hotel") {
+      try {
+        await createTicket(2);
+        toast('Ingresso reservado com sucesso!');
+        setDisabled(true);
+        setTicketReserved(true)
+        //navigate('/sign-in');
+      } catch (error) {
+        toast('Não foi possível reservar o ingresso!');
+      }
 
-   } else if (type === "online"){
-    try {
-      await createTicket(3);
-      toast('Ingresso reservado com sucesso!');
-      setDisabled(true);
-      //navigate('/sign-in');
-    } catch (error) {
-      toast('Não foi possível reservar o ingresso!');
-    }
+    } else if (type === "online") {
+      try {
+        await createTicket(3);
+        toast('Ingresso reservado com sucesso!');
+        setDisabled(true);
+        setTicketReserved(true)
+        //navigate('/sign-in');
+      } catch (error) {
+        toast('Não foi possível reservar o ingresso!');
+      }
 
-   }
+    }
   }
 
   return (
