@@ -1,28 +1,50 @@
 import styled from "styled-components"
 import {BiLogIn} from "react-icons/bi"
 import {VscError} from "react-icons/vsc"
+import {AiOutlineCheckCircle} from "react-icons/ai"
+import format from "date-fns/format"
+import ptBR from "date-fns/locale/pt-BR"
+import { differenceInHours } from "date-fns"
+import { useContext, useState } from "react"
+import UserContext from "../../contexts/UserContext"
 
 export default function ActivityComp(props) {
-    if(props.selected != props.day) return(<></>)
+    let day = format(new Date(props.data.startsAt),"dd/LL",{locale:ptBR})
+    if(props.selected != day) return(<></>)
+    const remaining = props.data.capacity - props.data.User.length
+    const start = format(new Date(props.data.startsAt),"kk:mm",{locale:ptBR})
+    const end = format(new Date(props.data.endsAt),"kk:mm",{locale:ptBR})
+    const duration = differenceInHours(new Date(props.data.endsAt),new Date(props.data.startsAt),"round")
+    const {userData} = useContext(UserContext)
+    const [sub,setSub] = useState(props.data.User.filter(e=>e.id==userData.user.id))
+
+    function SubActivity(){
+        if(sub.length != 0 || remaining == 0){
+            return
+        }
+        if(!props.subcontroll(day,start,props.data)){
+            return
+        }
+        setSub([1])
+    }
+
     return(
-        <ActivityDiv onClick={()=>console.log(props.remaining)} $duration={props.duration}>
-            <ActivityDesc>
+        <ActivityDiv $duration={duration} $subbed={sub.length!=0}>
+            <ActivityDesc onClick={()=>console.log(sub)}>
                 <ActivityTitle>
-                    Minecraft: montando o PC ideal
+                    {props.data.name}
                 </ActivityTitle>
                 <ActivityTime>
-                    09:00 - 10:00
+                    {start} - {end}
                 </ActivityTime>
             </ActivityDesc>
             <Spacer/>
-            <ActivityAction $places={props.remaining}>
-                {props.remaining > 0
-                    ?<BiLogIn style={{color:"#428734",width:20,height:20}}/>
-                    :<VscError style={{color:"red",width:20,height:20}}/>
-                }
-                {props.remaining > 0 
-                    ?`${props.remaining} vagas`
-                    :`Esgotado`
+            <ActivityAction $places={remaining} onClick={()=>SubActivity()}>
+                {sub.length!=0
+                    ?<><AiOutlineCheckCircle style={{color:"#428734",width:20,height:20}}/>Inscrito</>
+                    :remaining > 0
+                        ?<><BiLogIn style={{color:"#428734",width:20,height:20}}/>{remaining} vagas</>
+                        :<><VscError style={{color:"red",width:20,height:20}}/>Esgotado</>
                 }
             </ActivityAction>
         </ActivityDiv>
@@ -35,7 +57,7 @@ const ActivityDiv = styled.div`
     height: ${props=>80+(props.$duration-1)*88}px;
     border-radius: 5px;
     padding: 10px;
-    background-color: #F1F1F1;
+    background-color: ${props=>props.$subbed?"#D0FFDB":"#F1F1F1"};
 `;
 
 const ActivityDesc = styled.div`

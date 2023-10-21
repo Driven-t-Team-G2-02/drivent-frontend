@@ -15,6 +15,7 @@ export default function useTicket() {
     } = useAsync((data) => createTicketToPay.createTicket(data, token), true);
 
     const {
+        data:userTicket,
         loading: GetUserTicketLoading,
         error: GetUserTicketError,
         act: getUserTicket
@@ -24,6 +25,7 @@ export default function useTicket() {
         TicketLoading,
         TicketError,
         createTicket,
+        userTicket,
         GetUserTicketLoading,
         GetUserTicketError,
         getUserTicket
