@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
@@ -28,7 +28,22 @@ export default function SignIn() {
   const { setUserData } = useContext(UserContext);
 
   const navigate = useNavigate();
-  
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+
+    if (code) {
+      githubSignIn(code)
+        .then((res) => {
+          setUserData(res);
+          toast('Login realizado com sucesso!');
+          navigate('/dashboard');
+        })
+      console.log(userData);
+    }
+  }, [])
+
   async function submit(event) {
     event.preventDefault();
 
@@ -40,14 +55,11 @@ export default function SignIn() {
     } catch (err) {
       toast('Não foi possível fazer o login!');
     }
-  } 
+  }
 
   async function handleGithubSignIn() {
     try {
-      const response = await githubGetCode();
-      const userData = await githubSignIn(response.code);
-      console.log(response);
-      console.log(userData);
+      githubGetCode();
     } catch (error) {
       console.error(error)
     }
