@@ -1,14 +1,13 @@
 import { Typography } from "@mui/material";
 import styled from 'styled-components';
-import card from '../../assets/images/card.png';
 import check from '../../assets/images/circle-check-fill.png'
 import { useEffect, useState } from "react";
 import useTicket from "../../hooks/api/useTicket";
 import usePayment from "../../hooks/api/usePayment";
-import { toast } from "react-toastify";
-//import Input from "../Form/Input";
+import PaymentCard from "../Card";
+
 export default function PaymentDetails(props) {
-    const { ticketReserved, setTicketReserved } = props
+    const { ticketReserved, setTicketReserved, ticketPaid, setTicketPaid } = props
     const [cardNumber, setCardNumber] = useState('')
     const [name, setName] = useState('')
     const [validThru, setValidThru] = useState('')
@@ -34,26 +33,6 @@ export default function PaymentDetails(props) {
         }
     }, [ticketReserved])
 
-    async function finishPayment(event) {
-        event.preventDefault();
-        try {
-            const info = {
-                ticketId,
-                cardData: {
-                    issuer: 'VISA',
-                    number: cardNumber,
-                    name,
-                    expirationDate: validThru,
-                    cvv: cvc
-                }
-            }
-            await processPayment(info)
-            toast('Pagamento realizado com sucesso!');
-            setPaymentFinished(true);
-        } catch (err) {
-            toast('Não foi possível realizar o pagamento')
-        }
-    }
     return (
         <>
             <StyledTypography variant="h4">Ingresso e pagamento</StyledTypography>
@@ -66,65 +45,34 @@ export default function PaymentDetails(props) {
                     R$ {ticketPrice}
                 </h2>
             </Ticket>
-            {paymentFinished ? (
-                <>
-                    <Information>Pagamento</Information>
-                    <PaymentConfirmationContainer>
-                        <img src={check} />
-                        <div>
-                            <h1>Pagamento confirmado!</h1>
-                            <p>Prossiga para escolha de hospedagem e atividades</p>
-                        </div>
-                    </PaymentConfirmationContainer>
-                </>
-            )
+            {ticketPaid
+                ?
+                (
+                    <>
+                        <Information>Pagamento</Information>
+                        <PaymentConfirmationContainer>
+                            <img src={check} />
+                            <div>
+                                <h1>Pagamento confirmado!</h1>
+                                <p>Prossiga para escolha de hospedagem e atividades</p>
+                            </div>
+                        </PaymentConfirmationContainer>
+                    </>
+                )
                 :
                 (
                     <>
                         <Information>Pagamento</Information>
-                        <PaymentContainer>
-                            <img src={card} />
-                            <PaymentForm onSubmit={finishPayment}>
-                                <PaymentInput
-                                    required
-                                    type='number'
-                                    placeholder="Card Number"
-                                    value={cardNumber}
-                                    onChange={e => setCardNumber(e.target.value)}
-                                />
-                                <p>
-                                    E.g.: 49..., 51..., 36..., 37...
-                                </p>
-                                <PaymentInput
-                                    required
-                                    type='text'
-                                    placeholder="Name"
-                                    value={name}
-                                    onChange={e => setName(e.target.value)}
-                                />
-                                <div>
-                                    <PaymentInput
-                                        required
-                                        width='64%'
-                                        type='text'
-                                        placeholder="Valid Thru"
-                                        value={validThru}
-                                        onChange={e => setValidThru(e.target.value)}
-                                    />
-                                    <PaymentInput
-                                        required
-                                        width='32%'
-                                        type='number'
-                                        placeholder="CVC"
-                                        value={cvc}
-                                        onChange={e => setCVC(e.target.value)}
-                                    />
-                                </div>
-                                <button type='submit'>FINALIZAR PAGAMENTO</button>
-                            </PaymentForm>
-                        </PaymentContainer>
+                        <PaymentCard
+                            ticketId={ticketId}
+                            paymentFinished={paymentFinished}
+                            setPaymentFinished={setPaymentFinished}
+                            ticketPaid={ticketPaid}
+                            setTicketPaid={setTicketPaid}
+                        />
 
-                    </>)}
+                    </>
+                )}
         </>
     )
 }
