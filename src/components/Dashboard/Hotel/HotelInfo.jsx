@@ -30,11 +30,11 @@ export default function Hotel() {
                       <Details>
                         <div>
                           <Title>Tipos de acomodação:</Title>
-                          <Data>Single, double e triple</Data>
+                          <Data>{hotel.accommodations}</Data>
                         </div>
                         <div>
                           <Title>Vagas Disponíveis:</Title>
-                          <Data>103</Data>
+                          <Data>{hotel.capacityAvailable}</Data>
                         </div>
                       </Details>
                     </HotelButton>
