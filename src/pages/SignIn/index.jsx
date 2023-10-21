@@ -13,15 +13,15 @@ import EventInfoContext from '../../contexts/EventInfoContext';
 import UserContext from '../../contexts/UserContext';
 
 import useSignIn from '../../hooks/api/useSignIn';
-import useGithubGetcode from '../../hooks/api/useGithubGetCode';
 import useGithubSignIn from '../../hooks/api/useGithubSignIn';
+import GithubButton from '../../components/Form/GithubButton';
+import Breaker from '../../components/Form/Breaker';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const { loadingSignIn, signIn } = useSignIn();
-  const { githubGetCodeLoading, githubGetCode } = useGithubGetcode();
   const { githubSignInLoading, githubSignIn } = useGithubSignIn();
 
   const { eventInfo } = useContext(EventInfoContext);
@@ -37,10 +37,11 @@ export default function SignIn() {
       githubSignIn(code)
         .then((res) => {
           setUserData(res);
+          console.log(res);
           toast('Login realizado com sucesso!');
           navigate('/dashboard');
         })
-      console.log(userData);
+
     }
   }, [])
 
@@ -57,14 +58,6 @@ export default function SignIn() {
     }
   }
 
-  async function handleGithubSignIn() {
-    try {
-      githubGetCode();
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
   return (
     <AuthLayout background={eventInfo.backgroundImageUrl}>
       <Row>
@@ -76,8 +69,9 @@ export default function SignIn() {
         <form onSubmit={submit}>
           <Input label="E-mail" type="text" fullWidth value={email} onChange={e => setEmail(e.target.value)} />
           <Input label="Senha" type="password" fullWidth value={password} onChange={e => setPassword(e.target.value)} />
-          <Button type="submit" color="primary" fullWidth disabled={loadingSignIn || githubGetCodeLoading || githubSignInLoading}>Entrar</Button>
-          <Button type="button" onClick={() => handleGithubSignIn()} color="secondary" fullWidth disabled={loadingSignIn || githubSignInLoading || githubSignInLoading}>Github</Button>
+          <Button type="submit" color="primary" fullWidth disabled={loadingSignIn || githubSignInLoading}>Entrar</Button>
+          <Breaker/>
+          <GithubButton type="button" color="secondary" fullWidth disabled={loadingSignIn || githubSignInLoading}>Entrar com GitHub</GithubButton>
         </form>
       </Row>
       <Row>
