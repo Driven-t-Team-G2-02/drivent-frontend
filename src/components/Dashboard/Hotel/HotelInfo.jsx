@@ -4,7 +4,7 @@ import { Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import ErrorMessage from '../ErrorMessage';
 import useHotelRooms from '../../../hooks/api/useHotelRooms';
-import { BsPerson, BsPersonFill } from 'react-icons/bs'
+import { BsPerson, BsPersonFill } from 'react-icons/bs';
 
 export default function Hotel() {
   const { hotels, hotelError } = useHotels();
@@ -25,7 +25,7 @@ export default function Hotel() {
     <>
       <StyledTypography variant='h4'>Escolha de hotel e quarto</StyledTypography>
       {
-        hotelError ? 
+        hotelError ? // TODO: personalizar msg de erro
         <ErrorMessage>Ocorreu um erro!</ErrorMessage>
         :
           hotels ? 
