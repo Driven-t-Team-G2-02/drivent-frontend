@@ -5,13 +5,13 @@ import { useEffect, useState } from 'react';
 import ErrorMessage from '../ErrorMessage';
 import useHotelRooms from '../../../hooks/api/useHotelRooms';
 import { BsPerson, BsPersonFill } from 'react-icons/bs'
+import useTicket from '../../../hooks/api/useTicket';
 
 export default function Hotel() {
+  const { userTicket } = useTicket();
   const { hotels, hotelError } = useHotels();
   const [selectedHotel, setSelectedHotel] = useState();
   const { hotelWithRooms, hotelWithRoomsLoading, hotelWithRoomsError, getHotelWithRooms } = useHotelRooms(selectedHotel);
-  console.log(hotelWithRooms, hotelWithRoomsLoading, hotelWithRoomsError);
-
   const [selectedRoom, setSelectedRoom] = useState();
 
   useEffect(() => {
@@ -25,8 +25,10 @@ export default function Hotel() {
     <>
       <StyledTypography variant='h4'>Escolha de hotel e quarto</StyledTypography>
       {
-        hotelError ? 
-        <ErrorMessage>Ocorreu um erro!</ErrorMessage>
+        userTicket && (!userTicket.TicketType.includesHotel || userTicket.TicketType.isRemote) ? 
+          <ErrorMessage>Sua modalidade de ingresso não inclui hospedagem Prossiga para a escolha de atividades</ErrorMessage>
+        : hotelError ?
+          <ErrorMessage>Você precisa ter confirmado pagamento antes de fazer a escolha de hospedagem</ErrorMessage>
         :
           hotels ? 
             <>        
