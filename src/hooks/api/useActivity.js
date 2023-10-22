@@ -18,7 +18,7 @@ export default function useActivity() {
         loading: ActivityPostLoading,
         error: ActivityPostError,
         act: postActivities,
-    } = useAsync((data) => getActivity.postActivities(data,token), true);
+    } = useAsync((data) => getActivity.postActivities(data, token), true);
 
     return {
         activities,

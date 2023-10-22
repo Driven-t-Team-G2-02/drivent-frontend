@@ -10,8 +10,8 @@ export async function getActivities (token) {
   return response.data;
 }
 
-export async function postActivities (activityId,token) {
-  const response = await api.get('/activities', {activityId}, {
+export async function postActivities (activityId, token) {
+  const response = await api.post('/activities', {activityId}, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

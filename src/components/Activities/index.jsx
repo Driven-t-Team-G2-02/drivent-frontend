@@ -12,7 +12,7 @@ import ptBR from 'date-fns/locale/pt-BR'
 import UserContext from '../../contexts/UserContext';
 
 export default function ActivitiesTab() {
-  const {activities,ActivityError,ActivityPostError} = useActivity()
+  const {activities,ActivityError,postActivities} = useActivity()
   const {userTicket,GetUserTicketError} = useTicket()
   const [selectedDay,setSelectedDay] = useState(null)
   const [dayList,setDayList] = useState({})
@@ -47,11 +47,17 @@ export default function ActivitiesTab() {
     SetSubbedList(subbedHash)
   },[activities])
 
-  function SubControll(day,start,activity){
+  async function SubControll(day,start,activity){
     if(subbedList[day].length!=0){
       if(subbedList[day].filter(e=>format(new Date(e.startsAt),"kk:mm",{locale:ptBR})==start).length!=0){
         return false
       }
+    }
+    try {
+      await postActivities(activity.id)
+    } catch (err) {
+      console.log(err)
+      return false
     }
 
     subbedList[day].push(activity)

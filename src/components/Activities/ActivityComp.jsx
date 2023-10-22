@@ -18,11 +18,11 @@ export default function ActivityComp(props) {
     const {userData} = useContext(UserContext)
     const [sub,setSub] = useState(props.data.User.filter(e=>e.id==userData.user.id))
 
-    function SubActivity(){
+    async function SubActivity(){
         if(sub.length != 0 || remaining == 0){
             return
         }
-        if(!props.subcontroll(day,start,props.data)){
+        if(!await props.subcontroll(day,start,props.data)){
             return
         }
         setSub([1])
