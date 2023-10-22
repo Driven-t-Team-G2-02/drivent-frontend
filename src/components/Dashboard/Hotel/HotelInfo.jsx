@@ -4,12 +4,9 @@ import { Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import ErrorMessage from '../ErrorMessage';
 import useHotelRooms from '../../../hooks/api/useHotelRooms';
-<<<<<<< HEAD
-import { BsPerson, BsPersonFill } from 'react-icons/bs';
-=======
 import { BsPerson, BsPersonFill } from 'react-icons/bs'
 import useTicket from '../../../hooks/api/useTicket';
->>>>>>> main
+import RoomBtn from './RoomBtn';
 
 export default function Hotel() {
   const { userTicket } = useTicket();
@@ -29,15 +26,10 @@ export default function Hotel() {
     <>
       <StyledTypography variant='h4'>Escolha de hotel e quarto</StyledTypography>
       {
-<<<<<<< HEAD
-        hotelError ? // TODO: personalizar msg de erro
-        <ErrorMessage>Ocorreu um erro!</ErrorMessage>
-=======
         userTicket && (!userTicket.TicketType.includesHotel || userTicket.TicketType.isRemote) ? 
           <ErrorMessage>Sua modalidade de ingresso não inclui hospedagem Prossiga para a escolha de atividades</ErrorMessage>
         : hotelError ?
           <ErrorMessage>Você precisa ter confirmado pagamento antes de fazer a escolha de hospedagem</ErrorMessage>
->>>>>>> main
         :
           hotels ? 
             <>        
@@ -77,23 +69,12 @@ export default function Hotel() {
                         <HotelContainer>
                           { 
                             hotelWithRooms.Rooms.map(room => (
-                              <RoomButton
-                                disabled={room.id === selectedRoom}
-                                onClick={() => setSelectedRoom(room.id)}
+                              <RoomBtn 
                                 key={room.id}
-                              >
-                                <Name>{room.name}</Name>
-                                <div>
-                                  { 
-                                    room.Booking.map((booking, i) => (
-                                      booking.userId !== 0 ?
-                                        <BsPersonFill size={27} key={i} ></BsPersonFill>
-                                      :
-                                        <BsPerson size={27} key={i}></BsPerson>
-                                    ))
-                                  }
-                                </div>
-                              </RoomButton>
+                                selectedRoom={selectedRoom}
+                                setSelectedRoom={setSelectedRoom}
+                                room={room}
+                              />
                             ))
                           }
                         </HotelContainer>
