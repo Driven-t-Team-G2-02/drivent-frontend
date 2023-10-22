@@ -6,6 +6,7 @@ import ErrorMessage from '../ErrorMessage';
 import useHotelRooms from '../../../hooks/api/useHotelRooms';
 import { BsPerson, BsPersonFill } from 'react-icons/bs'
 import useTicket from '../../../hooks/api/useTicket';
+import RoomBtn from './RoomBtn';
 
 export default function Hotel() {
   const { userTicket } = useTicket();
@@ -68,23 +69,12 @@ export default function Hotel() {
                         <HotelContainer>
                           { 
                             hotelWithRooms.Rooms.map(room => (
-                              <RoomButton
-                                disabled={room.id === selectedRoom}
-                                onClick={() => setSelectedRoom(room.id)}
+                              <RoomBtn 
                                 key={room.id}
-                              >
-                                <Name>{room.name}</Name>
-                                <div>
-                                  { 
-                                    room.Booking.map((booking, i) => (
-                                      booking.userId !== 0 ?
-                                        <BsPersonFill size={27} key={i} ></BsPersonFill>
-                                      :
-                                        <BsPerson size={27} key={i}></BsPerson>
-                                    ))
-                                  }
-                                </div>
-                              </RoomButton>
+                                selectedRoom={selectedRoom}
+                                setSelectedRoom={setSelectedRoom}
+                                room={room}
+                              />
                             ))
                           }
                         </HotelContainer>
