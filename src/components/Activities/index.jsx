@@ -7,6 +7,7 @@ import ActivityComp from './ActivityComp';
 import useTicket from '../../hooks/api/useTicket';
 import ErrorMessage from '../Dashboard/ErrorMessage';
 import useActivity from '../../hooks/api/useActivity';
+import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR'
 import UserContext from '../../contexts/UserContext';
@@ -50,13 +51,14 @@ export default function ActivitiesTab() {
   async function SubControll(day,start,activity){
     if(subbedList[day].length!=0){
       if(subbedList[day].filter(e=>format(new Date(e.startsAt),"kk:mm",{locale:ptBR})==start).length!=0){
+        toast('Você já tem uma atividade nesse horário!')
         return false
       }
     }
     try {
       await postActivities(activity.id)
     } catch (err) {
-      console.log(err)
+      toast('Ocorreu um erro, tente novamente!')
       return false
     }
 
