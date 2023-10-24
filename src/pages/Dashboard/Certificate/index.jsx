@@ -3,7 +3,10 @@ import styled from 'styled-components';
 import html2pdf from 'html2pdf.js';
 import { Typography } from "@mui/material";
 import "../../../assets/styles/style.css?inline";
-import image from "../../../assets/images/image 2.png"
+import image from "../../../assets/images/image 2.png";
+import { useContext } from 'react';
+import UserContext from '../../../contexts/UserContext';
+import EventInfoContext from '../../../contexts/EventInfoContext';
 
 const CertificateButton = styled.button`
     width: 175px;
@@ -63,6 +66,44 @@ const CertificateContent = styled.div`
 `;
 
 const Certificate = () => {
+
+  const { nome, cpf, modalidade } = useContext(UserContext);
+  const { eventInfo } = useContext(EventInfoContext);
+
+  function formatarCPF(cpf) {
+    if (cpf.length !== 11) {
+        return cpf; 
+    } else {
+       
+        return (
+            cpf.substring(0, 3) +
+            '.' +
+            cpf.substring(3, 6) +
+            '.' +
+            cpf.substring(6, 9) +
+            '-' +
+            cpf.substring(9, 11)
+        );
+    }
+}
+
+const cpfFormatado = formatarCPF(cpf);
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+
+  const formattedDay = day < 10 ? '0' + day : day;
+  const formattedMonth = month < 10 ? '0' + month : month;
+
+  return `${formattedDay}/${formattedMonth}/${year}`;
+}
+
+const dataInicialFormatada = formatDate(eventInfo.startsAt);
+const dataFinalFormatada = formatDate(eventInfo.endsAt);
+
   const generatePDF = () => {
     const opt = {
       margin: 0.5,
@@ -76,8 +117,8 @@ const Certificate = () => {
       <div style="text-align: center;">
         <h1 class="certificate-title">CERTIFICADO</h1>
         <p class="certificate-text">Certificamos, para todos os devidos fins, de que a(o):</p>
-        <p class="certificate-name">Nome da pessoa</p>
-        <p class="certificate-description">Com documento XXX.XXX.XXX-XX participou do evento XXX, de forma YYY, entre os dias DD/MM/AAAA e DD/MM/AAAA.</p>
+        <p class="certificate-name">${nome}</p>
+        <p class="certificate-description">Com documento ${cpfFormatado} participou do evento ${eventInfo.title}, de forma ${modalidade}, entre os dias ${dataInicialFormatada} e ${dataFinalFormatada}.</p>
         <img src="${image}" class="image" />
       </div>
     `;
