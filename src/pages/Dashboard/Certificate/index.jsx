@@ -9,6 +9,7 @@ import UserContext from '../../../contexts/UserContext';
 import EventInfoContext from '../../../contexts/EventInfoContext';
 import useGetTicket from "../../../hooks/api/useGetTicket";
 import useEnrollment from '../../../hooks/api/useEnrollment';
+import ErrorMessage from "../../../components/Dashboard/ErrorMessage";
 
 const CertificateButton = styled.button`
     width: 175px;
@@ -79,7 +80,6 @@ const Certificate = () => {
       try {
         const userTicket = await getUserTicket();
         const enrollment = await getEnrollment();
-        console.log(userTicket);
         let word = userTicket.TicketType.name.split(" ");
         let firstWord = word[0].charAt(0).toLowerCase() + word[0].slice(1);
         setModalidade(firstWord);
@@ -92,43 +92,50 @@ const Certificate = () => {
     data()
   }, [])
 
+  const today = new Date();
+  //const oneDayAfterEvent = new Date(eventInfo.startsAt);
+  const oneDayAfterEvent = new Date(eventInfo.endsAt);
+  oneDayAfterEvent.setDate(oneDayAfterEvent.getDate() + 1);
+
+  const isCertificateAvailable = today >= oneDayAfterEvent;
+
   function formatarCPF(cpf) {
     if (cpf.length !== 11) {
-        return cpf; 
+      return cpf;
     } else {
-       
-        return (
-            cpf.substring(0, 3) +
-            '.' +
-            cpf.substring(3, 6) +
-            '.' +
-            cpf.substring(6, 9) +
-            '-' +
-            cpf.substring(9, 11)
-        );
+
+      return (
+        cpf.substring(0, 3) +
+        '.' +
+        cpf.substring(3, 6) +
+        '.' +
+        cpf.substring(6, 9) +
+        '-' +
+        cpf.substring(9, 11)
+      );
     }
-}
+  }
 
-const cpfFormatado = formatarCPF(cpf);
+  const cpfFormatado = formatarCPF(cpf);
 
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  const day = date.getDate();
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
 
-  const formattedDay = day < 10 ? '0' + day : day;
-  const formattedMonth = month < 10 ? '0' + month : month;
+    const formattedDay = day < 10 ? '0' + day : day;
+    const formattedMonth = month < 10 ? '0' + month : month;
 
-  return `${formattedDay}/${formattedMonth}/${year}`;
-}
+    return `${formattedDay}/${formattedMonth}/${year}`;
+  }
 
-const dataInicialFormatada = formatDate(eventInfo.startsAt);
-const dataFinalFormatada = formatDate(eventInfo.endsAt);
+  const dataInicialFormatada = formatDate(eventInfo.startsAt);
+  const dataFinalFormatada = formatDate(eventInfo.endsAt);
 
   const generatePDF = () => {
     const opt = {
-      margin: 0.5,
+      margin: 0,
       filename: 'certificate.pdf',
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
@@ -136,13 +143,19 @@ const dataFinalFormatada = formatDate(eventInfo.endsAt);
     };
 
     const content = `
-      <div style="text-align: center;">
-        <h1 class="certificate-title">CERTIFICADO</h1>
-        <p class="certificate-text">Certificamos, para todos os devidos fins, de que a(o):</p>
-        <p class="certificate-name">${nome}</p>
-        <p class="certificate-description">Com documento ${cpfFormatado} participou do evento ${eventInfo.title}, de forma ${modalidade}, entre os dias ${dataInicialFormatada} e ${dataFinalFormatada}.</p>
-        <img src="${image}" class="image" />
-      </div>
+    <div class="container">
+
+        <div class="style"></div>
+
+        <div style="flex: 1; text-align: center;">
+            <h1 class="certificate-title">CERTIFICADO</h1>
+            <p class="certificate-text">Certificamos, para todos os devidos fins, de que a(o):</p>
+            <p class="certificate-name">${nome}</p>
+            <p class="certificate-description">Com documento ${cpfFormatado} participou do evento ${eventInfo.title}, de forma ${modalidade}, entre os dias ${dataInicialFormatada} e ${dataFinalFormatada}.</p>
+            <img src="${image}" class="image" />
+        </div>
+        
+    </div>
     `;
 
     html2pdf().from(content).set(opt).save();
@@ -150,11 +163,18 @@ const dataFinalFormatada = formatDate(eventInfo.endsAt);
 
   return (
     <>
+
       <StyledTypography variant="h4">Certificado</StyledTypography>
 
-      <Information>Clique no botão abaixo para gerar seu certificado de participação.</Information>
-
-      <CertificateButton onClick={generatePDF}>GERAR CERTIFICADO</CertificateButton>
+      {isCertificateAvailable && (
+        <>
+          <Information>Clique no botão abaixo para gerar seu certificado de participação.</Information>
+          <CertificateButton onClick={generatePDF}>GERAR CERTIFICADO</CertificateButton>
+        </>
+      )}
+      {!isCertificateAvailable && (
+        <ErrorMessage>O certificado estará disponível apenas 1 dia após a realização do evento.</ErrorMessage>
+      )}
     </>
   );
 };
