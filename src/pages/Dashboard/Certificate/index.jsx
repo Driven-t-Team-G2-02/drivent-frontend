@@ -4,9 +4,11 @@ import html2pdf from 'html2pdf.js';
 import { Typography } from "@mui/material";
 import "../../../assets/styles/style.css?inline";
 import image from "../../../assets/images/image 2.png";
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import UserContext from '../../../contexts/UserContext';
 import EventInfoContext from '../../../contexts/EventInfoContext';
+import useGetTicket from "../../../hooks/api/useGetTicket";
+import useEnrollment from '../../../hooks/api/useEnrollment';
 
 const CertificateButton = styled.button`
     width: 175px;
@@ -67,8 +69,28 @@ const CertificateContent = styled.div`
 
 const Certificate = () => {
 
-  const { nome, cpf, modalidade } = useContext(UserContext);
+  const { getUserTicket } = useGetTicket();
+  const { getEnrollment } = useEnrollment();
+  const { nome, setNome, cpf, setCPF, modalidade, setModalidade } = useContext(UserContext);
   const { eventInfo } = useContext(EventInfoContext);
+
+  useEffect(() => {
+    async function data() {
+      try {
+        const userTicket = await getUserTicket();
+        const enrollment = await getEnrollment();
+        console.log(userTicket);
+        let word = userTicket.TicketType.name.split(" ");
+        let firstWord = word[0].charAt(0).toLowerCase() + word[0].slice(1);
+        setModalidade(firstWord);
+        setNome(enrollment.name);
+        setCPF(enrollment.cpf);
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    data()
+  }, [])
 
   function formatarCPF(cpf) {
     if (cpf.length !== 11) {
