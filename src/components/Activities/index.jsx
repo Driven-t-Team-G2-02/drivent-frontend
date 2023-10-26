@@ -13,44 +13,44 @@ import ptBR from 'date-fns/locale/pt-BR'
 import UserContext from '../../contexts/UserContext';
 
 export default function ActivitiesTab() {
-  const {activities,ActivityError,postActivities} = useActivity()
-  const {userTicket,GetUserTicketError} = useTicket()
-  const [selectedDay,setSelectedDay] = useState(null)
-  const [dayList,setDayList] = useState({})
-  const [roomList,setRoomList] = useState({})
-  const [subbedList,SetSubbedList] = useState({})
-  const {userData} = useContext(UserContext)
+  const { activities, ActivityError, postActivities } = useActivity()
+  const { userTicket, GetUserTicketError } = useTicket()
+  const [selectedDay, setSelectedDay] = useState(null)
+  const [dayList, setDayList] = useState({})
+  const [roomList, setRoomList] = useState({})
+  const [subbedList, SetSubbedList] = useState({})
+  const { userData } = useContext(UserContext)
 
-  function dayControll(actualId){
+  function dayControll(actualId) {
     setSelectedDay(actualId)
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     const dayHash = {}
     const roomHash = {}
     const subbedHash = {}
-    for (let a in activities){
-      let day = format(new Date(activities[a].startsAt),"dd/LL",{locale:ptBR})
-      if(dayHash[day]==undefined){
-        dayHash[day] = 
-        format(new Date(activities[a].startsAt),"eee, dd/LL",{locale:ptBR}).charAt(0).toUpperCase() + format(new Date(activities[a].startsAt),"eee, dd/LL",{locale:ptBR}).slice(1)
+    for (let a in activities) {
+      let day = format(new Date(activities[a].startsAt), "dd/LL", { locale: ptBR })
+      if (dayHash[day] == undefined) {
+        dayHash[day] =
+          format(new Date(activities[a].startsAt), "eee, dd/LL", { locale: ptBR }).charAt(0).toUpperCase() + format(new Date(activities[a].startsAt), "eee, dd/LL", { locale: ptBR }).slice(1)
         subbedHash[day] = []
       }
-      if(roomHash[activities[a].EventRoom.name]==undefined){
+      if (roomHash[activities[a].EventRoom.name] == undefined) {
         roomHash[activities[a].EventRoom.name] = roomHash[activities[a].EventRoom.name]
       }
-      if(activities[a].User.id == userData.user.id){
+      if (activities[a].User.id == userData.user.id) {
         subbedHash[day].push(activities[a])
       }
     }
     setDayList(dayHash)
     setRoomList(roomHash)
     SetSubbedList(subbedHash)
-  },[activities])
+  }, [activities])
 
-  async function SubControll(day,start,activity){
-    if(subbedList[day].length!=0){
-      if(subbedList[day].filter(e=>format(new Date(e.startsAt),"kk:mm",{locale:ptBR})==start).length!=0){
+  async function SubControll(day, start, activity) {
+    if (subbedList[day].length != 0) {
+      if (subbedList[day].filter(e => format(new Date(e.startsAt), "kk:mm", { locale: ptBR }) == start).length != 0) {
         toast('Você já tem uma atividade nesse horário!')
         return false
       }
@@ -67,58 +67,56 @@ export default function ActivitiesTab() {
     return true
   }
 
-  return(
+  return (
     <>
-      <StyledTypography variant="h4" onClick={()=>console.log(subbedList)}>Escolha de atividades</StyledTypography>
+      <StyledTypography variant="h4" onClick={() => console.log(subbedList)}>Escolha de atividades</StyledTypography>
       {
-        GetUserTicketError!=null||userTicket==null||userTicket.status!="PAID"//||(userTicket.TicketType.isRemote&&)
-        ?
-        <ErrorMessage>"Você precisa ter confirmado pagamento antes de fazer a escolha de atividades"</ErrorMessage>
-        :
-        userTicket.TicketType.isRemote
-        ?
-        <ErrorMessage>"Sua modalidade de ingresso não necessita escolher atividade. Você terá acesso a todas as atividades."</ErrorMessage>
-        :
-        ActivityError!=null?
-        <ErrorMessage>"Ocorreu um erro"</ErrorMessage>
-        :
-        <ContentWrapper>
-          <DayArea>
-            {
-              Object.keys(dayList).map(e=>
-                <DayButton id={e} func={dayControll} selected={selectedDay}>{dayList[e]}</DayButton>
-              )
-            }
-          </DayArea>
-          {
-            selectedDay==null
-            ?<></>
-            :<TableArea>
-              <RoomName>
+        GetUserTicketError != null || userTicket == null || userTicket.status != "PAID"//||(userTicket.TicketType.isRemote&&)
+          ?
+          <ErrorMessage>"Você precisa ter confirmado pagamento antes de fazer a escolha de atividades"</ErrorMessage>
+          :
+          userTicket.TicketType.isRemote
+            ?
+            <ErrorMessage>"Sua modalidade de ingresso não necessita escolher atividade. Você terá acesso a todas as atividades."</ErrorMessage>
+            :
+            ActivityError != null ?
+              <ErrorMessage>"Ocorreu um erro"</ErrorMessage>
+              :
+              <ContentWrapper>
+                <DayArea>
+                  {
+                    Object.keys(dayList).map(e =>
+                      <DayButton key={e} id={e} func={dayControll} selected={selectedDay}>{dayList[e]}</DayButton>
+                    )
+                  }
+                </DayArea>
                 {
-                  Object.keys(roomList).map(e=>
-                    <p>{e}</p>
-                  )
+                  selectedDay == null
+                    ? <></>
+                    : <TableArea>
+                      <RoomName>
+                        {Object.keys(roomList).map((e, index) => (
+                          <p key={index}>{e}</p>
+                        ))}
+                      </RoomName>
+                      <Table>
+                        {
+                          Object.keys(roomList).map(e =>
+                            <Sections>
+                              {
+                                activities.map(a =>
+                                  a.EventRoom.name == e
+                                    ? <ActivityComp key={a.id} data={a} selected={selectedDay} subcontroll={SubControll} />
+                                    : <></>
+                                )
+                              }
+                            </Sections>
+                          )
+                        }
+                      </Table>
+                    </TableArea>
                 }
-              </RoomName>
-              <Table>
-                {
-                  Object.keys(roomList).map(e=>
-                    <Sections>
-                      {
-                        activities.map(a=>
-                          a.EventRoom.name == e
-                          ?<ActivityComp key={a.id} data={a} selected={selectedDay} subcontroll={SubControll}/>
-                          :<></>
-                        )
-                      }
-                    </Sections>  
-                  )
-                }
-              </Table>
-            </TableArea>
-          }
-        </ContentWrapper>
+              </ContentWrapper>
       }
     </>
   )
