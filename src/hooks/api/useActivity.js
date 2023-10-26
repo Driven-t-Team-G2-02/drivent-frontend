@@ -20,6 +20,13 @@ export default function useActivity() {
         act: postActivities,
     } = useAsync((data) => getActivity.postActivities(data, token), false);
 
+    const {
+        data: activitiesByUser,
+        loading: ActivityByUserLoading,
+        error: ActivityByUserError,
+        act: getActivitiesByUser,
+    } = useAsync((data) => getActivity.getActivitiesByUser(token), true);
+
     return {
         activities,
         ActivityLoading,
@@ -27,6 +34,10 @@ export default function useActivity() {
         getActivities,
         ActivityPostLoading,
         ActivityPostError,
-        postActivities
+        postActivities,
+        activitiesByUser,
+        ActivityByUserLoading,
+        ActivityByUserError,
+        getActivitiesByUser
     }
 }
