@@ -12,7 +12,7 @@ export default function useTicket() {
         loading: TicketLoading,
         error: TicketError,
         act: createTicket,
-    } = useAsync((data) => createTicketToPay.createTicket(data, token), true);
+    } = useAsync((data) => createTicketToPay.createTicket(data, token), false);
 
     const {
         data:userTicket,
