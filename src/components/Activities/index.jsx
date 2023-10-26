@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR'
 import UserContext from '../../contexts/UserContext';
+import React from 'react';
 
 export default function ActivitiesTab() {
   const { activities, ActivityError, postActivities } = useActivity()
@@ -101,18 +102,19 @@ export default function ActivitiesTab() {
                       </RoomName>
                       <Table>
                         {
-                          Object.keys(roomList).map(e =>
-                            <Sections>
-                              {
-                                activities.map(a =>
-                                  a.EventRoom.name == e
-                                    ? <ActivityComp key={a.id} data={a} selected={selectedDay} subcontroll={SubControll} />
-                                    : <></>
+                          Object.keys(roomList).map((e, index) => (
+                            <Sections key={index}>
+                              {activities.map(a =>
+                                a.EventRoom.name === e ? (
+                                  <ActivityComp key={a.id} data={a} selected={selectedDay} subcontroll={SubControll} />
+                                ) : (
+                                  <React.Fragment key={`fragment-${a.id}`} />
                                 )
-                              }
+                              )}
                             </Sections>
-                          )
+                          ))
                         }
+
                       </Table>
                     </TableArea>
                 }
