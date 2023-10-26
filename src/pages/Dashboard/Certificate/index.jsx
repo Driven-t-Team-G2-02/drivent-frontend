@@ -9,6 +9,7 @@ import UserContext from '../../../contexts/UserContext';
 import EventInfoContext from '../../../contexts/EventInfoContext';
 import useGetTicket from "../../../hooks/api/useGetTicket";
 import useEnrollment from '../../../hooks/api/useEnrollment';
+import useActivity from '../../../hooks/api/useActivity';
 import ErrorMessage from "../../../components/Dashboard/ErrorMessage";
 
 const CertificateButton = styled.button`
@@ -72,7 +73,8 @@ const Certificate = () => {
 
   const { getUserTicket } = useGetTicket();
   const { getEnrollment } = useEnrollment();
-  const { nome, setNome, cpf, setCPF, modalidade, setModalidade } = useContext(UserContext);
+  const { getActivitiesByUser } = useActivity();
+  const { nome, setNome, cpf, setCPF, modalidade, setModalidade, atividades, setAtividades } = useContext(UserContext);
   const { eventInfo } = useContext(EventInfoContext);
 
   useEffect(() => {
@@ -80,11 +82,14 @@ const Certificate = () => {
       try {
         const userTicket = await getUserTicket();
         const enrollment = await getEnrollment();
+        const activities = await getActivitiesByUser();
+        console.log(activities.length > 5, "atividades");
         let word = userTicket.TicketType.name.split(" ");
         let firstWord = word[0].charAt(0).toLowerCase() + word[0].slice(1);
         setModalidade(firstWord);
         setNome(enrollment.name);
         setCPF(enrollment.cpf);
+        setAtividades(activities);
       } catch (err) {
         console.log(err)
       }
@@ -163,19 +168,26 @@ const Certificate = () => {
 
   return (
     <>
-
-      <StyledTypography variant="h4">Certificado</StyledTypography>
-
-      {isCertificateAvailable && (
-        <>
-          <Information>Clique no botão abaixo para gerar seu certificado de participação.</Information>
-          <CertificateButton onClick={generatePDF}>GERAR CERTIFICADO</CertificateButton>
-        </>
-      )}
-      {!isCertificateAvailable && (
-        <ErrorMessage>O certificado estará disponível apenas 1 dia após a realização do evento.</ErrorMessage>
-      )}
-    </>
+    <StyledTypography variant="h4">Certificado</StyledTypography>
+  
+    {isCertificateAvailable && (
+      <>
+        {modalidade === "presencial" && atividades.length < 5 ? (
+          <ErrorMessage>Você não fez o mínimo de atividades exigidas para ganhar o certificado!</ErrorMessage>
+        ) : (
+          <>
+            <Information>Clique no botão abaixo para gerar seu certificado de participação.</Information>
+            <CertificateButton onClick={generatePDF}>GERAR CERTIFICADO</CertificateButton>
+          </>
+        )}
+      </>
+    )}
+  
+    {!isCertificateAvailable && (
+      <ErrorMessage>O certificado estará disponível apenas 1 dia após a realização do evento.</ErrorMessage>
+    )}
+  </>
+  
   );
 };
 
