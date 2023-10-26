@@ -40,9 +40,10 @@ export default function ActivitiesTab() {
       if (roomHash[activities[a].EventRoom.name] == undefined) {
         roomHash[activities[a].EventRoom.name] = roomHash[activities[a].EventRoom.name]
       }
-      if (activities[a].User.id == userData.user.id) {
+      if (activities[a].User.find((e)=>e.id == userData.user.id)) {
         subbedHash[day].push(activities[a])
       }
+      console.log(activities[a].User.id)
     }
     setDayList(dayHash)
     setRoomList(roomHash)
