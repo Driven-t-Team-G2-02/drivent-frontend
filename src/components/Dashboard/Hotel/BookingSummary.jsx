@@ -23,9 +23,8 @@ export default function BookingSummary ({
       setRoom(filteredRoom);
       console.log(filteredRoom)
 
-      const otherBookingsCount = filteredRoom.Booking.length - 1;
-      const roomatesCount = otherBookingsCount === -1 ? 0 : otherBookingsCount;
-      setRoomates(roomatesCount);
+      const otherBookingsCount = filteredRoom.Booking.length;
+      setRoomates(otherBookingsCount);
     }
 
   }, [hotelWithRooms]);
