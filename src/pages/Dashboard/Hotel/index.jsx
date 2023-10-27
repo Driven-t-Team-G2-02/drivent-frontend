@@ -10,21 +10,26 @@ import { Typography } from '@mui/material';
 import HotelBtn from '../../../components/Dashboard/Hotel/HotelBtn';
 import RoomBtn from '../../../components/Dashboard/Hotel/RoomBtn';
 import { toast } from 'react-toastify';
+import usePutBooking from '../../../hooks/api/usePutBooking';
 
 export default function Hotel() {
   const { userTicket } = useTicket();
   const [selectedHotel, setSelectedHotel] = useState();
   const [selectedRoom, setSelectedRoom] = useState();
+  const [bookingId, setBookingId] = useState();
+  const [changingBooking, setChangingBooking] = useState();
+
   const { userBooking, getUserBooking, bookRoom, bookRoomLoading, bookRoomError, postBookRoom } = useBooking(selectedRoom);
   const { hotels, hotelError } = useHotels();
   const { hotelWithRooms, hotelWithRoomsLoading, hotelWithRoomsError, getHotelWithRooms } = useHotelRooms(selectedHotel);
+  const { bookRoomUpdated, putBookRoom } = usePutBooking(bookingId, selectedRoom);
 
   useEffect(() => {
-    if(selectedHotel) {
+    if (selectedHotel) {
       getHotelWithRooms();
     }
 
-    if(userBooking) {
+    if (userBooking) {
       setSelectedRoom(userBooking?.Room.id);
     }
 
@@ -34,75 +39,81 @@ export default function Hotel() {
     <>
       <StyledTypography variant='h4'>Escolha de hotel e quarto</StyledTypography>
       {
-        userBooking ? 
-          <BookingSummary userBooking={userBooking} />
-        : 
-        userTicket && (!userTicket.TicketType.includesHotel || userTicket.TicketType.isRemote) ? 
-          <ErrorMessage>Sua modalidade de ingresso não inclui hospedagem Prossiga para a escolha de atividades</ErrorMessage>
-        : 
-        hotelError ?
-          <ErrorMessage>Você precisa ter confirmado pagamento antes de fazer a escolha de hospedagem</ErrorMessage>
-        : 
-        hotels ? 
-          <>
-            <HotelContainer>
-              {
-                hotels.map(hotel => (
-                  <HotelBtn 
-                  key={hotel.id}
-                  hotel={hotel}
-                  selectedHotel={selectedHotel}
-                  setSelectedHotel={setSelectedHotel}
-                  />
-                ))
-              }
-            </HotelContainer>
-
-            {
-              selectedHotel? 
+        (userBooking && !changingBooking) ?
+          <BookingSummary
+            userBooking={userBooking}
+            setChangingBooking={setChangingBooking}
+            setSelectedRoom={setSelectedRoom}
+            setSelectedHotel={setSelectedHotel}
+            setBookingId={setBookingId}
+          />
+          :
+          userTicket && (!userTicket.TicketType.includesHotel || userTicket.TicketType.isRemote) ?
+            <ErrorMessage>Sua modalidade de ingresso não inclui hospedagem Prossiga para a escolha de atividades</ErrorMessage>
+            :
+            hotelError ?
+              <ErrorMessage>Você precisa ter confirmado pagamento antes de fazer a escolha de hospedagem</ErrorMessage>
+              :
+              hotels ?
                 <>
-                  <Information>Ótima pedida! Agora escolha seu quarto</Information>
+                  <HotelContainer>
+                    {
+                      hotels.map(hotel => (
+                        <HotelBtn
+                          key={hotel.id}
+                          hotel={hotel}
+                          selectedHotel={selectedHotel}
+                          setSelectedHotel={setSelectedHotel}
+                        />
+                      ))
+                    }
+                  </HotelContainer>
+
                   {
-                    hotelWithRooms ? 
-                      <HotelContainer>
+                    selectedHotel ?
+                      <>
+                        <Information>Ótima pedida! Agora escolha seu quarto</Information>
                         {
-                          hotelWithRooms.Rooms.map(room => (
-                            <RoomBtn
-                              key={room.id}
-                              selectedRoom={selectedRoom}
-                              setSelectedRoom={setSelectedRoom}
-                              room={room}
-                            />
-                          ))
+                          hotelWithRooms ?
+                            <HotelContainer>
+                              {
+                                hotelWithRooms.Rooms.map(room => (
+                                  <RoomBtn
+                                    key={room.id}
+                                    selectedRoom={selectedRoom}
+                                    setSelectedRoom={setSelectedRoom}
+                                    room={room}
+                                  />
+                                ))
+                              }
+                            </HotelContainer>
+                            : <></>
                         }
-                      </HotelContainer>
-                    : <></>
+                      </>
+                      : <></>
+                  }
+
+                  {
+                    selectedRoom ?
+                      <ActionBtn
+                        disabled={bookRoomLoading}
+                        onClick={async () => {
+                          try {
+                            await (changingBooking ? putBookRoom() : postBookRoom());
+                            await getUserBooking();
+                            setChangingBooking(false);
+                            toast('Reserva realizada com sucesso!');
+                          } catch (error) {
+                            toast('Você já possui uma reserva neste quarto!');
+                          }
+                        }}
+                      >
+                        RESERVAR QUARTO
+                      </ActionBtn>
+                      : <></>
                   }
                 </>
-              : <></>
-            }
-
-            {
-              selectedRoom ?
-              <ActionBtn
-                disabled={bookRoomLoading}
-                onClick={() => {
-                  postBookRoom()
-                    .then(() => {
-                      toast('Reserva realizada com sucesso!');
-                      getUserBooking();
-                    })
-                    .catch(() => {
-                      toast('Você já possui uma reserva neste quarto!');
-                    });
-                }}
-              >
-                RESERVAR QUARTO
-              </ActionBtn>
-              : <></>
-            }
-          </>
-        : <></>
+                : <></>
       }
     </>
   );
